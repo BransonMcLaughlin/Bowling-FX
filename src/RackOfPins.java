@@ -53,4 +53,8 @@ public class RackOfPins {
     public void resetPins() {
         for (Circle c : pins) c.setFill(Color.LIGHTGRAY);
     }
+
+    public int getStandingCount() {
+        return getStandingPins().size();
+}
 }
