@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -16,10 +17,10 @@ public class App extends Application {
     private Random rand = new Random();
     private Label statusLabel = new Label();
     private GridPane pinPane = new GridPane();
-    private VBox scorePane = new VBox(5);
+    private VBox scorePane = new VBox(10);
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         teams = setupTeams();
         playerScores = new HashMap<>();
         for (Team t : teams)
@@ -28,13 +29,30 @@ public class App extends Application {
         rack = new RackOfPins();
 
         Button rollBtn = new Button("Roll");
+        rollBtn.setStyle("-fx-font-size:22px;");
         rollBtn.setOnAction(e -> nextRoll());
 
-        VBox mainPane = new VBox(20, statusLabel, pinPane, rollBtn, scorePane);
+        statusLabel.setStyle("-fx-font-size:26px;-fx-padding:10px;");
+
+        pinPane.setAlignment(Pos.CENTER);
+        pinPane.setHgap(30);
+        pinPane.setVgap(30);
         setupPinPane();
+
+        scorePane.setAlignment(Pos.CENTER_LEFT);
+        scorePane.setStyle("-fx-font-size:20px;-fx-padding:10px;");
+
+        VBox mainVBox = new VBox(30, statusLabel, pinPane, rollBtn, scorePane);
+        mainVBox.setAlignment(Pos.CENTER);
+        mainVBox.setStyle("-fx-padding:30px;");
+
+        StackPane root = new StackPane(mainVBox);
+        root.setAlignment(Pos.CENTER);
+
         updateGui();
 
-        stage.setScene(new Scene(mainPane, 420, 480));
+        Scene scene = new Scene(root, 800, 700);
+        stage.setScene(scene);
         stage.setTitle("Simple Bowling Game");
         stage.show();
     }
@@ -64,10 +82,12 @@ public class App extends Application {
     private boolean frameComplete(Player p) {
         return playerScores.get(p).getRolls().size() % 2 == 0;
     }
+
     private Player getCurrentPlayer() {
         Team team = teams.get(currentTeamIdx);
         return team.getPlayers().get(currentPlayerIdx);
     }
+
     private void nextPlayer() {
         rack.resetRack();
         currentPlayerIdx++;
@@ -79,19 +99,22 @@ public class App extends Application {
     }
 
     private void setupPinPane() {
-        pinPane.getChildren().clear();
-        int[][] coords = {
-                {2, 0},{1, 1},{2, 1},{3, 1},
-                {0, 2},{1, 2},{2, 2},{3, 2},{4, 2},
-                {2, 3}
-        };
-        for (int i = 0; i < 10; i++) {
-            Circle pin = new Circle(14, Color.WHITE);
-            pin.setStroke(Color.BLACK);
-            pin.setUserData(i + 1);
-            pinPane.add(pin, coords[i][0], coords[i][1]);
-        }
+    pinPane.getChildren().clear();
+    int radius = 29;
+    // triangle layout: [col, row]
+    int[][] coords = {
+        {3,0},      // pin 1
+        {2,1},{4,1},           // pins 2,3
+        {1,2},{3,2},{5,2},     // pins 4,5,6
+        {0,3},{2,3},{4,3},{6,3} // pins 7,8,9,10
+    };
+    for (int i = 0; i < 10; i++) {
+        Circle pin = new Circle(radius, Color.WHITE);
+        pin.setStroke(Color.BLACK);
+        pin.setUserData(i + 1);
+        pinPane.add(pin, coords[i][0], coords[i][1]);
     }
+}
 
     private void updateGui() {
         for (int i = 0; i < 10; i++) {
@@ -102,12 +125,13 @@ public class App extends Application {
         scorePane.getChildren().clear();
         for (Team t : teams) {
             Label tLabel = new Label(t.getName());
-            tLabel.setStyle("-fx-font-weight: bold");
+            tLabel.setStyle("-fx-font-weight: bold; -fx-font-size:22px;");
             scorePane.getChildren().add(tLabel);
             for (Player p : t.getPlayers()) {
                 int score = playerScores.get(p).getScore();
                 boolean isNow = (p == getCurrentPlayer());
                 Label pl = new Label((isNow ? "▶ " : "") + p.getName() + ": " + score);
+                pl.setStyle("-fx-font-size:18px;");
                 scorePane.getChildren().add(pl);
             }
         }
