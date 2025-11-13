@@ -1,56 +1,65 @@
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public class RackOfPins {
-    private ArrayList<Circle> pins = new ArrayList<>();
-    private Group view = new Group();
+    private Pin p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
 
     public RackOfPins() {
-        double startX = 350;
-        double startY = 150;
-        double radius = 12;
-        int[] rowCounts = {1,2,3,4};
-        int yOff = 0;
-        int idx = 0;
-        for (int r=0;r<rowCounts.length;r++){
-            int count = rowCounts[r];
-            double rowWidth = (count-1) * 30;
-            for (int i=0;i<count;i++){
-                double x = startX - rowWidth/2 + i*30;
-                double y = startY + yOff;
-                Circle c = new Circle(x,y,radius, Color.LIGHTGRAY);
-                c.setStroke(Color.BLACK);
-                pins.add(c);
-                view.getChildren().add(c);
-                idx++;
-                if (idx>=10) break;
-            }
-            yOff += 30;
-        }
-        Text caption = new Text(10,20,"Pins (gray = standing)");
-        view.getChildren().add(caption);
+        p1 = makePin(1);
+        p2 = makePin(2);
+        p3 = makePin(3);
+        p4 = makePin(4);
+        p5 = makePin(5);
+        p6 = makePin(6);
+        p7 = makePin(7);
+        p8 = makePin(8);
+        p9 = makePin(9);
+        p10 = makePin(10);
     }
 
-    public Node getView() {
-        return view;
+    private Pin makePin(int num) {
+        Pin p = new Pin();
+        p.setPinNum(num);
+        return p;
     }
 
-    public void knockPins(int n) {
-        int knocked = 0;
-        for (Circle c : pins) {
-            if (knocked >= n) break;
-            if (c.getFill().equals(Color.LIGHTGRAY)) {
-                c.setFill(Color.DARKGRAY);
-                knocked++;
-            }
+    public void resetRack() {
+        for (int i = 1; i <= 10; i++) {
+            getPin(i).setKnockedDown(false);
         }
     }
 
-    public void resetPins() {
-        for (Circle c : pins) c.setFill(Color.LIGHTGRAY);
+    public List<Pin> getStandingPins() {
+        List<Pin> standing = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            if (!getPin(i).isKnockedDown()) standing.add(getPin(i));
+        }
+        return standing;
+    }
+
+    public Pin getPin(int pinNumber) {
+        switch (pinNumber) {
+            case 1: return p1;
+            case 2: return p2;
+            case 3: return p3;
+            case 4: return p4;
+            case 5: return p5;
+            case 6: return p6;
+            case 7: return p7;
+            case 8: return p8;
+            case 9: return p9;
+            case 10: return p10;
+            default: return null;
+        }
+    }
+
+    public void knockDownRandomPins(int number) {
+        List<Pin> standing = getStandingPins();
+        Collections.shuffle(standing, new Random());
+        for (int i = 0; i < number && i < standing.size(); i++) {
+            standing.get(i).setKnockedDown(true);
+        }
     }
 }
